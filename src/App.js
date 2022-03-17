@@ -1,23 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import Navbar from "./Navbar";
+import Body from "./Body";
+import axios from 'axios'
+import "./App.css";
+import React, { useEffect, useState } from 'react';
 
 function App() {
+
+  const [gifs, setGifs] = useState([])
+  const [searchQry, setSearchQry] = useState("");
+  
+  useEffect(()=>{
+      axios.get(`http://api.giphy.com/v1/gifs/trending`, { params: {
+          api_key: '5Muqe6HOngq40S9xI6ZQJ7jDfvZUoS5f',
+          limit:40
+        }})
+        .then(res => {
+          setGifs(res.data.data)
+          console.log(res.data.data)
+        })
+    },[]);
+
+  const handleSearch = (e) => {
+    setSearchQry(e.target.value);
+    // console.log(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .get(`https://api.giphy.com/v1/gifs/search`, {
+        params: {
+          api_key: "5Muqe6HOngq40S9xI6ZQJ7jDfvZUoS5f",
+          q:searchQry,
+          limit:40
+        },
+      })
+      .then((res) => {
+        setGifs(res.data.data);
+      });
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar
+        searchQry={searchQry}
+        handleSearch={handleSearch}
+        handleSubmit={handleSubmit}
+      />
+      <Body gifs={gifs} setGifs={setGifs}/>
     </div>
   );
 }
